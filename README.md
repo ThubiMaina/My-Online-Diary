@@ -1,5 +1,4 @@
 # My-Online-Diary
 An Andela challenge
-If you want to embed images, this is how you do it:
 
-![Image of diary](My-Online-Diary/images/Dear-diary.jpg )
+![diary](https://user-images.githubusercontent.com/31989539/42674910-477c815c-867a-11e8-9241-3c76d5978f7a.jpg)
