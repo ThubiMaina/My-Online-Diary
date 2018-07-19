@@ -159,5 +159,6 @@ class UserTestCase(unittest.TestCase):
         result = json.loads(login_res.data.decode())
         self.assertEqual(result['error'], "email field cannot be blank")
         self.assertEqual(login_res.status_code, 400)
+        
 if __name__ == "__main__":
     unittest.main()
