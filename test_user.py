@@ -38,9 +38,10 @@ class UserTestCase(unittest.TestCase):
         """
         Test new user registration
         """
-        result = self.app.post("/api/auth/register/", data=self.user_data,
-                                    content_type="application/json")
-        self.assertEqual(result.status_code, 201)
+        res = self.register_user()
+        result = json.loads(res.data.decode())
+        self.assertEqual(result['message'], "welcome you now can log in")
+        self.assertEqual(res.status_code, 201)
 
     def test_registration_without_username(self):
         """
