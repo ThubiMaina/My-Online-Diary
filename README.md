@@ -23,9 +23,9 @@ ____
 
 ### Installation
 
-clone the repo:
+clone the repo:git
 ```
-$ git clone https://github.com/muthash/WeConnect.git
+$  git clone https://github.com/ThubiMaina/My-Online-Diary.git
 ```
 and cd into the folder:
 ```
