@@ -124,7 +124,7 @@ def create_app(config_name):
 	        return jsonify(response), 401
 	    response = {'error': 'User does not exist. Proceed to register'}
 	    return jsonify(response), 401
-	    
+
 	@app.route('/api/v1/users/', methods=['GET'])
 	def get_all_users():
 	    """api endpoint for getting all users"""
@@ -134,9 +134,11 @@ def create_app(config_name):
 	            {'user_id': user.user_id, 'username': user.username,
 	             'admin': user.admin, 'email': user.email})
 	    if len(userlist) == 0:#pylint:disable=C1801
-	        response = {"message":"there are no users registered "}
-	        return jsonify(response), 404
+	        response = jsonify({"error":"there are no users registered "})
+	        response.status_code = 404
+	        return response
 	    return jsonify(userlist), 200
+
 	@app.route('/api/v1/entries/', methods=['POST'])
 	def create_diary_entry():
 	    """api endpoint to create a new diary entry"""
@@ -186,4 +188,19 @@ def create_app(config_name):
 	                         })
 	    return jsonify(DiaryList), 200
 
+	@app.route('/api/v1/entries/<int:entry_id>/', methods=['GET'])
+	def get_single_entry(entry_id):
+	    """api endpoint to get a single diary entry"""
+	    entry = [entry for entry in entries if entry.entry_id == entry_id]
+	    if len(entry) == 0:#pylint:disable=C1801
+	        response = jsonify({'error': 'item not found'})
+	        response.status_code = 404
+	        return response
+	    de = entry[0]
+	    return jsonify({'date':de.date,
+	                    'owner': de.owner,
+	                    'entry_id': de.entry_id,
+	                    'title': de.title,
+	                    'contents':[]
+	                   }), 200
 	return app
