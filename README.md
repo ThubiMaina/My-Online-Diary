@@ -54,7 +54,8 @@ then
 
 ``` flask run ```
 
-on your browser open up [http://127.0.0.1:5000/api/v1/](http://127.0.0.1:5000/api/v1/)
+Use post man to test the endpoints this is the  [link](https://mydiar.herokuapp.com/)
+* For example use [https://mydiar.herokuapp.com/api/auth/register/](https://mydiar.herokuapp.com/api/auth/register/) to register a new user
 
 ### Api Endpoints
 
