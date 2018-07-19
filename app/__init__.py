@@ -108,7 +108,7 @@ def create_app(config_name):
 	        response.status_code = 400
 	        return response
 	    if password == "":
-	        response = jsonify({'error': 'password field has to be field'})
+	        response = jsonify({'error': 'password field has to be filled'})
 	        response.status_code = 400
 	        return response
 	    credentials = {user.email: user.password for user in users}
