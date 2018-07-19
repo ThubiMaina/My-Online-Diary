@@ -14,7 +14,13 @@ class EntryTestCase(unittest.TestCase):
                     "title": "A day in space"
                 }))
 
-    
-    
+    def test_diary_entry(self):
+        """
+        Test a diary entry
+        """
+        result = self.app.post("/api/v1/entries/", data=self.entry_data,
+                                    content_type="application/json")
+        self.assertEqual(result.status_code, 201)
+        
 if __name__ == "__main__":
     unittest.main()
