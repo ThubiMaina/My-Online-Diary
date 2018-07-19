@@ -9,6 +9,7 @@ class EntryTestCase(unittest.TestCase):
     def setUp(self):
         """Set up test variables."""
         self.app = create_app('testing').test_client()
+        self.headers={'Content-Type': 'application/json'}
         self.entry_data = json.dumps(dict({
                     "owner": "erick",
                     "title": "A day in space"
