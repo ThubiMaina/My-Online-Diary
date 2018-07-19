@@ -25,6 +25,15 @@ class UserTestCase(unittest.TestCase):
                 headers={'Content-Type': 'application/json'},
                 data=json.dumps(user_data))
 
+    def login_user(self, email="user@gmail.com", password="password"):
+        """This helper method helps log in a test user."""
+        user_data = {'email': email, 'password': password}
+        return self.app.post(
+                '/api/auth/login',
+                headers={'Content-Type': 'application/json'},
+                data=json.dumps(user_data)
+               )
+
     def test_registration(self):
         """
         Test new user registration
@@ -126,5 +135,6 @@ class UserTestCase(unittest.TestCase):
         self.assertEqual(result['error'],
                          "user already exists")
         self.assertEqual(second_res.status_code, 409)
+
 if __name__ == "__main__":
     unittest.main()
