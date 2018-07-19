@@ -3,6 +3,7 @@
 from flask_api import FlaskAPI
 from flask import request, jsonify, abort
 import re
+from datetime import datetime
 from app import models
 from app.models import User, DiaryEntries
 from functools import wraps
@@ -123,4 +124,41 @@ def create_app(config_name):
 	        return jsonify(response), 401
 	    response = {'error': 'User does not exist. Proceed to register'}
 	    return jsonify(response), 401
+
+	@app.route('/api/v1/entries/', methods=['POST'])
+	def create_diary_entry():
+	    """api endpoint to create a new diary entry"""
+	    data = request.get_json()
+	    owner = data.get('owner')
+	    title = data.get('title')
+	    if owner == "":
+	        response = jsonify({'error': 'provide entry owner'})
+	        response.status_code = 400
+	        return response
+
+	    if title == "":
+	        response = jsonify({'error': 'provide the title for the entry'})
+	        response.status_code = 400
+	        return response
+
+	    existing = {u.title: u.owner for u in entries}
+	    if title in existing.keys():
+	        response = jsonify({'error': 'That item exists'})
+	        response.status_code = 400
+	        return response
+	        
+	    if len(entries) == 0:#pylint:disable=C1801
+	        entry_id = 1
+	    else:
+	        entry_id = entries[-1].entry_id +1
+	    D_entry = {
+	        'entry_id': entry_id,
+	        'date':datetime.utcnow(),
+	        'owner': request.json["owner"],
+	        'title': request.json.get('title', "")}
+	    de = DiaryEntries(**D_entry)
+
+	    entries.append(de)
+	    return jsonify(D_entry), 201
+
 	return app
