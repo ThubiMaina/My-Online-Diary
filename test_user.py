@@ -86,7 +86,12 @@ class UserTestCase(unittest.TestCase):
                             content_type = "application/json")
         self.assertEqual(result.status_code, 403)
 
-    
+    def test_register_with_invalid_url(self):
+        """
+        Test registration with an invalid url
+        """
+        result = self.app.post('/api/auth/regist/', data=self.user_data)
+        self.assertEqual(result.status_code, 404)
 
 if __name__ == "__main__":
     unittest.main()
