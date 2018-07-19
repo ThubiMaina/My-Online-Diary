@@ -97,4 +97,30 @@ def create_app(config_name):
 				#users created successfully
 				response.status_code = 201
 				return response
+	@app.route('/api/auth/login/', methods=['POST'])
+	def login():
+	    """login api endpoint"""
+	    data = request.get_json()
+	    email = data.get('email')
+	    password = data.get('password')
+	    if email == "":
+	        response = jsonify({'error': 'email field cannot be blank'})
+	        response.status_code = 400
+	        return response
+	    if password == "":
+	        response = jsonify({'error': 'password field has to be field'})
+	        response.status_code = 400
+	        return response
+	    credentials = {user.email: user.password for user in users}
+	    if email in credentials.keys():
+	        user_password = credentials[email]
+	        if user_password == password:
+	            response = {
+	                'message': 'Login successful'
+	            }
+	            return jsonify(response), 200
+	        response = {'message': 'Invalid password'}
+	        return jsonify(response), 401
+	    response = {'message': 'User does not exist. Proceed to register'}
+	    return jsonify(response), 401
 	return app
