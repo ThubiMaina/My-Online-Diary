@@ -15,6 +15,16 @@ class UserTestCase(unittest.TestCase):
                     "password": "password"
                 }))
 
+    def register_user(self, email="erick@gmail.com", username="erick",
+                      password="password"):
+        """This helper method helps register a test user."""
+        user_data = {'email': email, 'username': username,
+                     'password': password}
+        return self.app.post(
+                '/api/auth/register/',
+                headers={'Content-Type': 'application/json'},
+                data=json.dumps(user_data))
+
     def test_registration(self):
         """
         Test new user registration
@@ -44,6 +54,20 @@ class UserTestCase(unittest.TestCase):
             "username": "erick",
             "email": "erick@gmail.com",
             "password": ""
+        }))
+        result = self.app.post("/api/auth/register/", data=test_data,
+                                    content_type="application/json")
+
+        self.assertEqual(result.status_code, 400)
+
+    def test_registration_without_an_email(self):
+        """
+        Test that empty user email cannot register
+        """
+        test_data = json.dumps(dict({
+            "username": "erick",
+            "email": "",
+            "password": "password"
         }))
         result = self.app.post("/api/auth/register/", data=test_data,
                                     content_type="application/json")
@@ -93,5 +117,14 @@ class UserTestCase(unittest.TestCase):
         result = self.app.post('/api/auth/regist/', data=self.user_data)
         self.assertEqual(result.status_code, 404)
 
+    def test_already_registered_user(self):
+        """Test that a user cannot be registered twice."""
+        self.register_user("erick@mail.com", "erick", "password")
+        second_res = self.register_user("erick@mail.com",
+                                        "erick", "password")
+        result = json.loads(second_res.data.decode())
+        self.assertEqual(result['error'],
+                         "user already exists")
+        self.assertEqual(second_res.status_code, 409)
 if __name__ == "__main__":
     unittest.main()
