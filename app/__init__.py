@@ -119,8 +119,8 @@ def create_app(config_name):
 	                'message': 'Login successful'
 	            }
 	            return jsonify(response), 200
-	        response = {'message': 'Invalid password'}
+	        response = {'error': 'Invalid password'}
 	        return jsonify(response), 401
-	    response = {'message': 'User does not exist. Proceed to register'}
+	    response = {'error': 'User does not exist. Proceed to register'}
 	    return jsonify(response), 401
 	return app
