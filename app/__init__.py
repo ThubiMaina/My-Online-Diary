@@ -146,7 +146,7 @@ def create_app(config_name):
 	        response = jsonify({'error': 'That item exists'})
 	        response.status_code = 400
 	        return response
-	        
+
 	    if len(entries) == 0:#pylint:disable=C1801
 	        entry_id = 1
 	    else:
@@ -159,6 +159,19 @@ def create_app(config_name):
 	    de = DiaryEntries(**D_entry)
 
 	    entries.append(de)
-	    return jsonify(D_entry), 201
+	    return jsonify(D_entry, {"message":"created"}), 201
+	    
+	@app.route('/api/v1/entries/', methods=['GET'])
+	def get_entries():
+	    """api endpoint to get a list of diary entries"""
+	    DiaryList = []
+	    for de in entries:
+	        DiaryList.append({'date': de.date,
+	                          'owner': de.owner,
+	                          'entry_id': de.entry_id,
+	                          'title': de.title,
+	                          'contents':[]
+	                         })
+	    return jsonify(DiaryList), 200
 
 	return app
