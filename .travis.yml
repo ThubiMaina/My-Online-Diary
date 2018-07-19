@@ -12,9 +12,9 @@ install:
 
 script:
 
-  - nosetests --with-coverage --cover-package=app
+  - pytest
 
-  - coverage report
+  - coverage run --source=app -m pytest  && coverage report
 
 after_success:
 
