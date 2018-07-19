@@ -152,6 +152,12 @@ class UserTestCase(unittest.TestCase):
         self.assertEqual(result['error'], "Invalid password")
         self.assertEqual(login_res.status_code, 401)
 
-    
+    def test_login_blank_email(self):
+        """Test registered user can login with a blank email."""
+        self.register_user("user@mail.com", "testuser", "testpass")
+        login_res = self.login_user("", "testpass")
+        result = json.loads(login_res.data.decode())
+        self.assertEqual(result['error'], "email field cannot be blank")
+        self.assertEqual(login_res.status_code, 400)
 if __name__ == "__main__":
     unittest.main()
