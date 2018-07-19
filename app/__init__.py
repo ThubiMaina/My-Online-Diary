@@ -220,7 +220,7 @@ def create_app(config_name):
             response = jsonify({'error': 'only edit the entry name'})
             response.status_code = 400
             return response
-            
+
         if 'title' in request.json:
             de.title = request.json["title"]
         return jsonify({'date':de.date,
@@ -228,5 +228,15 @@ def create_app(config_name):
                         'entry_id': de.entry_id,
                         'title': de.title
                        }), 201
-
+    @app.route('/api/v1/entries/<int:entry_id>/', methods=['DELETE'])
+    def delete_entry(entry_id):
+        """api endpoint to delete a single entry"""
+        entry = [entry for entry in entries if entry.entry_id == entry_id]
+        if len(entry) == 0:#pylint:disable=C1801
+            response = jsonify({'error': 'item not found'})
+            response.status_code = 404
+            return response
+        de = entry[0]
+        entries.remove(de)
+        return jsonify({'result': 'item deleted'}), 202
     return app
