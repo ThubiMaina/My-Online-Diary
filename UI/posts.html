@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Posts </title>
+    <style type="text/css">
+
+    body{
+      
+
+       background-size: cover;
+       color: white;
+       background-repeat: no-repeat;
+       background-position: center;
+       background-attachment: fixed;
+
+     }
+    section{
+        background-color: rgba(0, 0, 0, 0.54);
+        padding: 10px;
+        margin-top: 20px;
+        margin-bottom: 60px;
+        color: white;
+        box-shadow: 10px 10px 5px rgba(6, 1, 1, 0.43)
+       }
+
+      #posts {
+    font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
+    border-collapse: collapse;
+    width: 100%;
+}
+
+#posts td, #posts th {
+    border: 1px solid #ddd;
+    padding: 8px;
+}
+
+#posts tr:nth-child(even){background-color: grey;}
+
+#posts tr:hover {background-color: #aaa;}
+
+#posts th {
+    padding-top: 12px;
+    padding-bottom: 12px;
+    text-align: left;
+    background-color: #4CAF50;
+    color: white;
+}
+button, input, h1, h2, h3, h4 ,p, {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+}
+
+</style>
+  </style>
+  <link rel="stylesheet" href="css/style.css">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+        <header>
+                
+ <div class="clear"></div>
+  <div id="menu-bar-2-container">
+    <div id="menu-bar-2">
+    
+      <ul>
+  <li><a href="index.html">Home</a></li>
+  <li><a href="profile.html">Profile</a></li>
+  <li><a href="posts.html">Posts</a></li>
+  <li>  <a href="#" id="break-nav"><i class="fa fa-bell"></i></a>
+</li>
+  <li><a href="login.html">Login</a></li>
+  <li><a href="register.html">Sign up</a></li>
+  <li><a href="login.html">Logout</a></li>
+</ul>
+
+    </div>
+  </div>
+        </header>
+    </head>
+
+    <body style="background-image:  url(images/diary.jpg); background-color: #DDD padding: 20px;
+        margin-top: 0px;"  >
+       
+  
+ <section>
+  <a href="create.html"><button type="submit" >Add an entry</button></a>
+   <table id="posts">
+
+      <tr>
+        <th>Image</th>
+        <th>Date</th>
+        <th>Title</th>
+        <th>Brief Description</th>
+        <th>View</th>
+        <th>Update</th>
+        <th>Delete</th>
+      </tr>
+
+      <tr>
+        <td><img src="images/1.jpg" style="margin-top:-5px;margin-left: -10px; height: 50px; width: 60px"></td>
+        <td>5-July, 2018</td>
+        <td>To pay host service</td>
+        <td>reminder</td>
+        <td><a href="posts_contents.html"><i class="fa fa-eye" style="font-size:40px;color:lightblue;"></i></a></td>
+        <td>
+          <a href="#"><i class="fa fa-pencil" style="font-size:40px;color:lightblue;"></i></a>
+        </td>
+        <td>
+          <a href="#"><i class="fa fa-trash" style="font-size:40px;color:lightblue;"></i></a>
+        </td>
+      </tr>
+
+      <tr>
+        <td><img src="images/profile.jpg" style="margin-top:-5px;margin-left: -10px; height: 50px; width: 60px"></td>
+        <td>28-Jan, 2018</td>
+        <td>A day at the mall</td>
+       <td>plan</td> 
+        <td><a href="posts_contents.html"><i class="fa fa-eye" style="font-size:40px;color:lightblue;"></i></a></td>
+        <td>
+          <a href="#"><i class="fa fa-pencil" style="font-size:40px;color:lightblue;"></i></a>
+        </td>
+        <td>
+          <a href="#"><i class="fa fa-trash" style="font-size:40px;color:lightblue;"></i></a>
+        </td>
+      </tr>
+
+      <tr>
+        <td><img src="images/2.jpg" style="margin-top:-5px;margin-left: -10px; height: 50px; width: 60px"></td>
+        <td>4-May, 2018</td>
+        <td>Family Vacation </td>
+        <td>Memory</td>
+        <td><a href="posts_contents.html"><i class="fa fa-eye" style="font-size:40px;color:lightblue;"></i></a></td>
+        <td>
+          <a href="#"><i class="fa fa-pencil" style="font-size:40px;color:lightblue;"></i></a>
+        </td>
+        <td>
+          <a href="#"><i class="fa fa-trash" style="font-size:40px;color:lightblue;"></i></a>
+        </td>
+      </tr>
+
+      <tr>
+        <td><img src="images/3.jpg" style="margin-top:-5px;margin-left: -10px; height: 50px; width: 60px"></td>
+        <td>27-August, 2018</td>
+        <td>Visit Israel</td>
+        <td>Travel plans</td>
+        <td><a href="posts_contents.html"><i class="fa fa-eye" style="font-size:40px;color:lightblue;"></i></a></td>
+        <td>
+          <a href="#"><i class="fa fa-pencil" style="font-size:40px;color:lightblue;"></i></a>
+        </td>
+        <td>
+          <a href="#"><i class="fa fa-trash" style="font-size:40px;color:lightblue;"></i></a>
+        </td>
+      </tr>
+
+      <tr>
+        <td><img src="images/4.jpg" style="margin-top:-5px;margin-left: -10px; height: 50px; width: 60px"></td>
+        <td>14-Feb, 2018</td>
+        <td>Dinner with Tricks</td>
+        <td>Dinner </td>
+        <td><a href="posts_contents.html"><i class="fa fa-eye" style="font-size:40px;color:lightblue;"></i></a></td>
+        <td>
+          <a href="#"><i class="fa fa-pencil" style="font-size:40px;color:lightblue;"></i></a>
+        </td>
+        <td>
+          <a href="#"><i class="fa fa-trash" style="font-size:40px;color:lightblue;"></i></a>
+        </td>
+      </tr>
+
+      <tr>
+        <td><img src="images/profile.jpg" style="margin-top:-5px;margin-left: -10px; height: 50px; width: 60px"></td>
+        <td>29-July, 2018</td>
+        <td>Birthday party</td>
+        <td>Home party</td>
+        <td><a href="posts_contents.html"><i class="fa fa-eye" style="font-size:40px;color:lightblue;"></i></a></td>
+        <td>
+          <a href="#"><i class="fa fa-pencil" style="font-size:40px;color:lightblue;"></i></a>
+        </td>
+        <td>
+          <a href="#"><i class="fa fa-trash" style="font-size:40px;color:lightblue;"></i></a>
+        </td>
+      </tr>
+
+      <tr>
+        <td><img src="images/2.jpg" style="margin-top:-5px;margin-left: -10px; height: 50px; width: 60px"></td>
+        <td>2-May, 2018</td>
+        <td>Kerreita ziplining and lunch at Ngare Ndare </td>
+        <td>memories</td>
+        <td><a href="posts_contents.html"><i class="fa fa-eye" style="font-size:40px;color:lightblue;"></i></a></td>
+        <td>
+          <a href="#"><i class="fa fa-pencil" style="font-size:40px;color:lightblue;"></i></a>
+        </td>
+        <td>
+          <a href="#"><i class="fa fa-trash" style="font-size:40px;color:lightblue;"></i></a>
+        </td>
+      </tr>
+    </table></center>
+
+   </div>
+  </section>
+  <center><footer class="footer" style="margin-top: 150px ; color: #000000 ; font-weight: bold; font-weight: 900;" ><small>copyright @ My Online Diary 2018|Developer @ Maina Erick</small></footer></center>
+</body>
+</html>
