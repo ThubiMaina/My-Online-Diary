@@ -29,7 +29,7 @@ class UserTestCase(unittest.TestCase):
         """This helper method helps log in a test user."""
         user_data = {'email': email, 'password': password}
         return self.app.post(
-                '/api/auth/login',
+                '/api/auth/login/',
                 headers={'Content-Type': 'application/json'},
                 data=json.dumps(user_data)
                )
@@ -136,5 +136,22 @@ class UserTestCase(unittest.TestCase):
                          "user already exists")
         self.assertEqual(second_res.status_code, 409)
 
+    def test_user_login(self):
+        """Test registered user can login."""
+        self.register_user("user@mail.com", "testuser", "testpass")
+        login_res = self.login_user("user@mail.com", "testpass")
+        result = json.loads(login_res.data.decode())
+        self.assertEqual(result['message'], "Login successful")
+        self.assertEqual(login_res.status_code, 200)
+
+    def test_login_incorrect_password(self):
+        """Test registered user can login with an incorrect password."""
+        self.register_user("user@mail.com", "testuser", "testpass")
+        login_res = self.login_user("user@mail.com", "testpas")
+        result = json.loads(login_res.data.decode())
+        self.assertEqual(result['error'], "Invalid password")
+        self.assertEqual(login_res.status_code, 401)
+
+    
 if __name__ == "__main__":
     unittest.main()
