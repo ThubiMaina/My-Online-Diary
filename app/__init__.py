@@ -173,6 +173,7 @@ def create_app(config_name):
         return response
 
     @app.route('/api/v1/entries/', methods=['GET'])
+    @auth_token
     def get_entries():
         """api endpoint to get a list of diary entries"""
         DiaryList = []
@@ -185,6 +186,7 @@ def create_app(config_name):
         return jsonify(DiaryList), 200
 
     @app.route('/api/v1/entries/<int:entry_id>/', methods=['GET'])
+    @auth_token
     def get_single_entry(entry_id):
         """api endpoint to get a single diary entry"""
         entry = [entry for entry in entries if entry.entry_id == entry_id]
@@ -199,6 +201,7 @@ def create_app(config_name):
                         'title': de.title,
                        }), 200
     @app.route('/api/v1/entries/<int:entry_id>/', methods=['PUT'])
+    @auth_token
     def update_diary_entry(entry_id):
         """api endpoint to edit a diary entry"""
         data = request.get_json()
@@ -232,6 +235,7 @@ def create_app(config_name):
                         'title': de.title
                        }), 201
     @app.route('/api/v1/entries/<int:entry_id>/', methods=['DELETE'])
+    @auth_token
     def delete_entry(entry_id):
         """api endpoint to delete a single entry"""
         entry = [entry for entry in entries if entry.entry_id == entry_id]
@@ -270,6 +274,7 @@ def create_app(config_name):
         return response
 
     @app.route('/api/v1/entries/<int:entry_id>/contents/', methods=['GET'])
+    @auth_token
     def get_contents(entry_id):
         """api endpoint to get a list of the contents to a  diary entry"""
         contentlist = []
