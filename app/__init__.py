@@ -1,37 +1,23 @@
 # app/__init__.py
-
-from flask_api import FlaskAPI
-from flask import request, jsonify, abort
 import re
 from datetime import datetime
+from flask_api import FlaskAPI
+from flask import request, jsonify, abort
 from app import models
-from app.models import User, DiaryEntries
-from functools import wraps
-
+from app.models import *
+from app.auth import auth_token
 
 # local import
 from instance.config import app_config
 
 users = []
 entries = []
+contents = []
 
 def create_app(config_name):
     app = FlaskAPI(__name__, instance_relative_config=True)
     app.config.from_object(app_config["development"])
     app.config.from_pyfile('config.py')
-
-    def login_required(f):
-        @wraps(f)
-        def wrap(*args, **kwargs):
-            credentials = {user.email: user.password for user in users}    
-            if email in credentials.keys():
-                return f(*args, **kwargs)
-            else:
-                response = jsonify({'error': 'you need to be logged in'})
-                response.status_code = 403
-                return response
-        return wrap
-
 
     @app.route('/api/auth/register/', methods=['POST'])
     def create_user():
@@ -98,6 +84,7 @@ def create_app(config_name):
                 #users created successfully
                 response.status_code = 201
                 return response
+
     @app.route('/api/auth/login/', methods=['POST'])
     def login():
         """login api endpoint"""
@@ -112,21 +99,27 @@ def create_app(config_name):
             response = jsonify({'error': 'password field has to be filled'})
             response.status_code = 400
             return response
-        credentials = {user.email: user.password for user in users}
-        if email in credentials.keys():
-            user_password = credentials[email]
-            if user_password == password:
-                response = {
-                    'message': 'Login successful'
-                }
-                return jsonify(response), 200
-            response = {'error': 'Invalid password'}
-            return jsonify(response), 401
+
+        credentials = {user.email: user.password for user in users}    
+        if email in credentials.keys():     
+            encrypted_password = credentials[email]
+            if Bcrypt().check_password_hash(encrypted_password, password):
+                access_token = User.generate_token(email)
+                if access_token:
+                    response = {
+                        'message': 'Login successful',
+                        'access_token': access_token
+                    }
+                    return jsonify(response), 200
+            response = {'error': 'Invalid email or password'}
+            return jsonify(response), 401       
         response = {'error': 'User does not exist. Proceed to register'}
         return jsonify(response), 401
 
+
     @app.route('/api/v1/users/', methods=['GET'])
-    def get_all_users():
+    @auth_token
+    def get_all_users(current_user_email):
         """api endpoint for getting all users"""
         userlist = []
         for user in users:
@@ -140,7 +133,8 @@ def create_app(config_name):
         return jsonify(userlist), 200
 
     @app.route('/api/v1/entries/', methods=['POST'])
-    def create_diary_entry():
+    @auth_token
+    def create_diary_entry(current_user_email):
         """api endpoint to create a new diary entry"""
         data = request.get_json()
         owner = data.get('owner')
@@ -170,10 +164,13 @@ def create_app(config_name):
             'date':datetime.utcnow(),
             'owner': request.json["owner"],
             'title': request.json.get('title', "")}
+
         de = DiaryEntries(**D_entry)
 
         entries.append(de)
-        return jsonify(D_entry, {"message":"created"}), 201
+        response = jsonify({"message": "entry created"})
+        response.status_code = 201
+        return response
 
     @app.route('/api/v1/entries/', methods=['GET'])
     def get_entries():
@@ -183,8 +180,7 @@ def create_app(config_name):
             DiaryList.append({'date': de.date,
                               'owner': de.owner,
                               'entry_id': de.entry_id,
-                              'title': de.title,
-                              'contents':[]
+                              'title': de.title
                              })
         return jsonify(DiaryList), 200
 
@@ -201,11 +197,12 @@ def create_app(config_name):
                         'owner': de.owner,
                         'entry_id': de.entry_id,
                         'title': de.title,
-                        'contents':[]
                        }), 200
     @app.route('/api/v1/entries/<int:entry_id>/', methods=['PUT'])
     def update_diary_entry(entry_id):
         """api endpoint to edit a diary entry"""
+        data = request.get_json()
+        title = data.get('title')
         entry = [entry for entry in entries if entry.entry_id == entry_id]
         if len(entry) == 0:#pylint:disable=C1801
             response = jsonify({'error': 'item not found'})
@@ -218,6 +215,12 @@ def create_app(config_name):
 
         if de.owner != owner:
             response = jsonify({'error': 'only edit the entry name'})
+            response.status_code = 400
+            return response
+
+        existing = {u.title: u.owner for u in entries}
+        if title in existing.keys():
+            response = jsonify({'error': 'no change detected'})
             response.status_code = 400
             return response
 
@@ -239,4 +242,43 @@ def create_app(config_name):
         de = entry[0]
         entries.remove(de)
         return jsonify({'result': 'item deleted'}), 202
+
+    @app.route('/api/v1/entries/<int:entry_id>/contents/', methods=['POST'])
+    def create_content(entry_id):
+        data = request.get_json()
+        content = data.get('contents')
+        if contents == '':
+            abort(400)
+        if entry_id =='':
+            abort(400)
+        if len(contents) == 0:#pylint:disable=C1801
+            content_id = 1
+        else:
+            content_id = contents[-1].content_id +1
+        content = {
+            'content_id': content_id,
+            'diary_id':entry_id,
+            'date':datetime.utcnow(),
+            'content': request.json.get('contents')
+            }
+
+        cl = Content(**content)
+
+        contents.append(cl)
+        response = jsonify({"message": "content added"})
+        response.status_code = 201
+        return response
+
+    @app.route('/api/v1/entries/<int:entry_id>/contents/', methods=['GET'])
+    def get_contents(entry_id):
+        """api endpoint to get a list of the contents to a  diary entry"""
+        contentlist = []
+        for list_content in contents:
+            contentlist.append({'date': list_content.date,
+                              "content_id":list_content.content_id,
+                              'diary_id': list_content.diary_id,
+                              "contents":list_content.content
+                             })
+        return jsonify(contentlist), 200
+
     return app
