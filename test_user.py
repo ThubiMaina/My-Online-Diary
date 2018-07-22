@@ -1,5 +1,6 @@
 import unittest
 import json
+from flask_bcrypt import Bcrypt
 from app import create_app
 
 
@@ -141,16 +142,17 @@ class UserTestCase(unittest.TestCase):
         """Test registered user can login."""
         self.register_user("user@mail.com", "testuser", "testpass")
         login_res = self.login_user("user@mail.com", "testpass")
-        result = json.loads(login_res.data.decode())
-        self.assertEqual(result['message'], "Login successful")
+        results = json.loads(login_res.data.decode())
+        self.assertEqual(results['message'], "Login successful")
         self.assertEqual(login_res.status_code, 200)
+        self.assertTrue(results["access_token"])
 
     def test_login_incorrect_password(self):
         """Test registered user can login with an incorrect password."""
         self.register_user("user@mail.com", "testuser", "testpass")
         login_res = self.login_user("user@mail.com", "testpas")
         result = json.loads(login_res.data.decode())
-        self.assertEqual(result['error'], "Invalid password")
+        self.assertEqual(result['error'], "Invalid email or password")
         self.assertEqual(login_res.status_code, 401)
 
     def test_login_blank_email(self):
@@ -160,6 +162,27 @@ class UserTestCase(unittest.TestCase):
         result = json.loads(login_res.data.decode())
         self.assertEqual(result['error'], "email field cannot be blank")
         self.assertEqual(login_res.status_code, 400)
-        
+
+    def test_login_non_registered_user(self):
+        """
+        Test that non registered users cannot log in
+        """
+        unregistered = json.dumps(dict({
+            "username": "tiaroot",
+            "email": "tiaroot@email.com",
+            "password": "invalidpassword"
+        }))
+
+        result = self.app.post("/api/auth/login/", data=unregistered,
+                                    content_type="application/json")
+        self.assertEqual(result.status_code, 401)
+
+    def test_login_with_a_nonexistent_url(self):
+        """
+        Test login with invalid url
+        """
+        response = self.app.post('/api/auth/logon/', data=self.user_data)
+        self.assertEqual(response.status_code, 404)
+
 if __name__ == "__main__":
     unittest.main()
