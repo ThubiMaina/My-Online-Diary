@@ -174,7 +174,7 @@ def create_app(config_name):
 
     @app.route('/api/v1/entries/', methods=['GET'])
     @auth_token
-    def get_entries():
+    def get_entries(current_user_email):
         """api endpoint to get a list of diary entries"""
         DiaryList = []
         for de in entries:
@@ -187,7 +187,7 @@ def create_app(config_name):
 
     @app.route('/api/v1/entries/<int:entry_id>/', methods=['GET'])
     @auth_token
-    def get_single_entry(entry_id):
+    def get_single_entry(entry_id, current_user_email):
         """api endpoint to get a single diary entry"""
         entry = [entry for entry in entries if entry.entry_id == entry_id]
         if len(entry) == 0:#pylint:disable=C1801
@@ -202,7 +202,7 @@ def create_app(config_name):
                        }), 200
     @app.route('/api/v1/entries/<int:entry_id>/', methods=['PUT'])
     @auth_token
-    def update_diary_entry(entry_id):
+    def update_diary_entry(entry_id, current_user_email):
         """api endpoint to edit a diary entry"""
         data = request.get_json()
         title = data.get('title')
@@ -236,7 +236,7 @@ def create_app(config_name):
                        }), 201
     @app.route('/api/v1/entries/<int:entry_id>/', methods=['DELETE'])
     @auth_token
-    def delete_entry(entry_id):
+    def delete_entry(entry_id, current_user_email):
         """api endpoint to delete a single entry"""
         entry = [entry for entry in entries if entry.entry_id == entry_id]
         if len(entry) == 0:#pylint:disable=C1801
@@ -248,7 +248,8 @@ def create_app(config_name):
         return jsonify({'result': 'item deleted'}), 202
 
     @app.route('/api/v1/entries/<int:entry_id>/contents/', methods=['POST'])
-    def create_content(entry_id):
+    @auth_token
+    def create_content(entry_id, current_user_email):
         data = request.get_json()
         content = data.get('contents')
         if contents == '':
@@ -275,7 +276,7 @@ def create_app(config_name):
 
     @app.route('/api/v1/entries/<int:entry_id>/contents/', methods=['GET'])
     @auth_token
-    def get_contents(entry_id):
+    def get_contents(entry_id, current_user_email):
         """api endpoint to get a list of the contents to a  diary entry"""
         contentlist = []
         for list_content in contents:
