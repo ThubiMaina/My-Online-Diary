@@ -55,6 +55,15 @@ p {
   color: white;
   width: 600px;
 }
+section{
+        background-color: grey;
+        padding: 20px;
+        margin-top: 10px;
+        margin-bottom: 80px;
+        align-self: center;
+        color: white;
+        box-shadow: 10px 10px 5px rgba(6, 1, 1, 0.43)
+       }
 .sec p{
   font-size: 18px;
   text-align: justify;
