@@ -22,6 +22,10 @@ ___
 ____
 
 ### Installation
+create a directory MyDiary
+```
+$  mkdir MyDiary
+```
 
 clone the repo:git
 ```
@@ -29,7 +33,7 @@ $  git clone https://github.com/ThubiMaina/My-Online-Diary.git
 ```
 and cd into the folder:
 ```
-$ /MyDiary
+$ cd MyDiary
 ```
 create a virtual environment for the project.
 ```
@@ -37,7 +41,7 @@ $ virtualenv <virtualenv-name>
 ```
 and activate virtual environment
 ```
-$ cd virtualenv-name\Scripts\activate
+$ cd MyDiary\virtualenv-name\Scripts\activate
 ```
 
 Run the command `$ pip install -r requirements.txt` to install necessary libraries.
@@ -53,6 +57,12 @@ or
 then
 
 ``` flask run ```
+### Running the tests 
+
+To run tests on your terminal run 
+
+* ```pytest .\<file-name>``` 
+* ```py.test --cov=app``` to get the coverage
 
 Use post man to test the endpoints this is the  [link](https://mydiar.herokuapp.com/)
 * For example use [https://mydiar.herokuapp.com/api/auth/register/](https://mydiar.herokuapp.com/api/auth/register/) to register a new user
