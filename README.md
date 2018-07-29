@@ -1,6 +1,8 @@
 # My-Online-Diary
 ___
-[![Coverage Status](https://coveralls.io/repos/github/ThubiMaina/My-Online-Diary/badge.svg?branch=master)](https://coveralls.io/github/ThubiMaina/My-Online-Diary?branch=master)
+[![Build Status](https://travis-ci.org/ThubiMaina/My-Online-Diary.svg?branch=Mydiary-v1)](https://travis-ci.org/ThubiMaina/My-Online-Diary)
+
+[![Coverage Status](https://coveralls.io/repos/github/ThubiMaina/My-Online-Diary/badge.svg?branch=Mydiary-v1)](https://coveralls.io/github/ThubiMaina/My-Online-Diary?branch=Mydiary-v1)
 ___
 ![diary](https://user-images.githubusercontent.com/31989539/42674910-477c815c-867a-11e8-9241-3c76d5978f7a.jpg)
 
