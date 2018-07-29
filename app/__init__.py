@@ -34,29 +34,46 @@ def create_app(config_name):
                 response.status_code = 400
                 return response
 
-            elif not re.match(regex, email):
+            if not re.match(regex, email):
                 response = jsonify({
                     'error':'try entering a valid email'
                 })
                 response.status_code = 403
                 return response
 
-            elif username == "":
+            if username == "":
                 response = jsonify({'error' : 'username field cannot be blank'})
                 response.status_code = 400
                 return response
 
-            elif not re.match("^[a-zA-Z0-9_]*$", username):
+            if username:
+                stripped_name = username.strip()
+                if len(stripped_name) == 0:
+                    response = jsonify({'error':
+                    'Your first value  must NOT !! be a space'})
+                    response.status_code = 403
+                    return response
+
+            if not re.match("^[a-zA-Z0-9_ ]*$", username):
                 response = jsonify({'error':
                                     'Username cannot contain special characters'})
                 response.status_code = 403
                 return response
 
-            elif password == "":
+            if password == "":
                 response = jsonify({'error':'password field has to be filled'})
                 response.status_code = 400
                 return response
-            elif len(password) < 5:#pylint:disable=C1801
+
+            if password:
+                stripped_pass = password.strip()
+                if len(stripped_pass) == 0:
+                    response = jsonify({'error':
+                    'please avoid using spaces in your password'})
+                    response.status_code = 403
+                    return response
+
+            if len(password) < 5:#pylint:disable=C1801
                 response = jsonify({'error':
                                     'Password should be more than 5 characters'})
                 response.status_code = 403
@@ -95,10 +112,27 @@ def create_app(config_name):
             response = jsonify({'error': 'email field cannot be blank'})
             response.status_code = 400
             return response
+            
+        if email:
+                stripped_email = email.strip()
+                if len(stripped_email) == 0:
+                    response = jsonify({'error':
+                    'email field cannot contain spaces'})
+                    response.status_code = 403
+                    return response
+
         if password == "":
             response = jsonify({'error': 'password field has to be filled'})
             response.status_code = 400
             return response
+
+        if password:
+                stripped_pass = password.strip()
+                if len(stripped_pass) == 0:
+                    response = jsonify({'error':
+                    'Your first value  must NOT !! be a space'})
+                    response.status_code = 403
+                    return response
 
         credentials = {user.email: user.password for user in users}    
         if email in credentials.keys():     
@@ -111,6 +145,7 @@ def create_app(config_name):
                         'access_token': access_token
                     }
                     return jsonify(response), 200
+                
             response = {'error': 'Invalid email or password'}
             return jsonify(response), 401       
         response = {'error': 'User does not exist. Proceed to register'}
@@ -137,9 +172,10 @@ def create_app(config_name):
     def create_diary_entry(current_user_email):
         """api endpoint to create a new diary entry"""
         data = request.get_json()
-        owner = data.get('owner')
+        user_id = data.get('user_id')
         title = data.get('title')
-        if owner == "":
+        content = data.get('content')
+        if user_id == "":
             response = jsonify({'error': 'provide entry owner'})
             response.status_code = 400
             return response
@@ -147,9 +183,14 @@ def create_app(config_name):
         if title == "":
             response = jsonify({'error': 'provide the title for the entry'})
             response.status_code = 400
+            return 
+
+        if content == "":
+            response = jsonify({'error': 'provide the contents of  the entry'})
+            response.status_code = 400
             return response
 
-        existing = {u.title: u.owner for u in entries}
+        existing = {u.title: u.user_id for u in entries}
         if title in existing.keys():
             response = jsonify({'error': 'That item exists'})
             response.status_code = 400
@@ -162,12 +203,13 @@ def create_app(config_name):
         D_entry = {
             'entry_id': entry_id,
             'date':datetime.utcnow(),
-            'owner': request.json["owner"],
-            'title': request.json.get('title', "")}
+            'user_id': user_id,
+            'title':title,
+            'content':content}
 
-        de = DiaryEntries(**D_entry)
+        diary_entry = DiaryEntries(**D_entry)
 
-        entries.append(de)
+        entries.append(diary_entry)
         response = jsonify({"message": "entry created"})
         response.status_code = 201
         return response
@@ -177,11 +219,12 @@ def create_app(config_name):
     def get_entries(current_user_email):
         """api endpoint to get a list of diary entries"""
         DiaryList = []
-        for de in entries:
-            DiaryList.append({'date': de.date,
-                              'owner': de.owner,
-                              'entry_id': de.entry_id,
-                              'title': de.title
+        for entry in entries:
+            DiaryList.append({'date': entry.date,
+                              'user_id': entry.user_id,
+                              'entry_id': entry.entry_id,
+                              'title': entry.title,
+                              'content':entry.content
                              })
         return jsonify(DiaryList), 200
 
@@ -196,16 +239,19 @@ def create_app(config_name):
             return response
         de = entry[0]
         return jsonify({'date':de.date,
-                        'owner': de.owner,
+                        'user_id': de.user_id,
                         'entry_id': de.entry_id,
                         'title': de.title,
-                       }), 200
+                        'content':de.content
+                       }), 
+
     @app.route('/api/v1/entries/<int:entry_id>/', methods=['PUT'])
     @auth_token
     def update_diary_entry(entry_id, current_user_email):
         """api endpoint to edit a diary entry"""
         data = request.get_json()
         title = data.get('title')
+        content = data['content']
         entry = [entry for entry in entries if entry.entry_id == entry_id]
         if len(entry) == 0:#pylint:disable=C1801
             response = jsonify({'error': 'item not found'})
@@ -213,26 +259,30 @@ def create_app(config_name):
             return response
         if not request.json:
             abort(400)
-        owner = request.json["owner"]
+        user_id = request.json["user_id"]
         de = entry[0]
 
-        if de.owner != owner:
+        if de.user_id != user_id:
             response = jsonify({'error': 'only edit the entry name'})
             response.status_code = 400
             return response
 
-        existing = {u.title: u.owner for u in entries}
+        existing = {u.title: u.user_id for u in entries}
         if title in existing.keys():
-            response = jsonify({'error': 'no change detected'})
+            response = jsonify({'error': 'no change detected on title'})
             response.status_code = 400
             return response
 
         if 'title' in request.json:
             de.title = request.json["title"]
+        if 'content' in request.json:
+            de.content = request.json['content']
+
         return jsonify({'date':de.date,
-                        'owner': de.owner,
+                        'user_id': de.user_id,
                         'entry_id': de.entry_id,
-                        'title': de.title
+                        'title': de.title,
+                        'content':de.content
                        }), 201
     @app.route('/api/v1/entries/<int:entry_id>/', methods=['DELETE'])
     @auth_token
@@ -246,45 +296,5 @@ def create_app(config_name):
         de = entry[0]
         entries.remove(de)
         return jsonify({'result': 'item deleted'}), 202
-
-    @app.route('/api/v1/entries/<int:entry_id>/contents/', methods=['POST'])
-    @auth_token
-    def create_content(entry_id, current_user_email):
-        data = request.get_json()
-        content = data.get('contents')
-        if contents == '':
-            abort(400)
-        if entry_id =='':
-            abort(400)
-        if len(contents) == 0:#pylint:disable=C1801
-            content_id = 1
-        else:
-            content_id = contents[-1].content_id +1
-        content = {
-            'content_id': content_id,
-            'diary_id':entry_id,
-            'date':datetime.utcnow(),
-            'content': request.json.get('contents')
-            }
-
-        cl = Content(**content)
-
-        contents.append(cl)
-        response = jsonify({"message": "content added"})
-        response.status_code = 201
-        return response
-
-    @app.route('/api/v1/entries/<int:entry_id>/contents/', methods=['GET'])
-    @auth_token
-    def get_contents(entry_id, current_user_email):
-        """api endpoint to get a list of the contents to a  diary entry"""
-        contentlist = []
-        for list_content in contents:
-            contentlist.append({'date': list_content.date,
-                              "content_id":list_content.content_id,
-                              'diary_id': list_content.diary_id,
-                              "contents":list_content.content
-                             })
-        return jsonify(contentlist), 200
 
     return app
