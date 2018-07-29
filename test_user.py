@@ -39,9 +39,7 @@ class UserTestCase(unittest.TestCase):
         """
         Test new user registration
         """
-        res = self.register_user()
-        result = json.loads(res.data.decode())
-        self.assertEqual(result['message'], "welcome you now can log in")
+        res = self.register_user("test@gmail.com","testuser","testpass")
         self.assertEqual(res.status_code, 201)
 
     def test_registration_without_username(self):
@@ -70,6 +68,33 @@ class UserTestCase(unittest.TestCase):
                                     content_type="application/json")
 
         self.assertEqual(result.status_code, 400)
+
+    def test_registration_with_spaces_as_password(self):
+        """
+        Test that empty user password  cannot register
+        """
+        test_data = json.dumps(dict({
+            "username": "erick",
+            "email": "erick@gmail.com",
+            "password": "       "
+        }))
+        result = self.app.post("/api/auth/register/", data=test_data,
+                                    content_type="application/json")
+        results = json.loads(result.data.decode())
+        self.assertEqual(results['error'],
+                         "please avoid using spaces in your password")
+
+        self.assertEqual(result.status_code, 403)
+
+    def test_registration_with_spaces_as_username(self):
+        """
+        Test that empty user password  cannot register
+        """
+        result = self.register_user("test@mail.com", "     ", "password")
+        res = json.loads(result.data.decode())
+        self.assertEqual(res['error'],
+                         "Your first value  must NOT !! be a space")
+        self.assertEqual(result.status_code, 403)
 
     def test_registration_without_an_email(self):
         """
@@ -110,15 +135,12 @@ class UserTestCase(unittest.TestCase):
         self.assertEqual(result.status_code, 403)
 
     def test_registration_with_a_short_password(self):
-        """test that the email supplied by the user is valid
+        """test that the password is more than five characters
         """
-        test_data = json.dumps(dict({
-            "username":"erick",
-            "email": "erick@emailcom",
-            "password":"pass"
-            }))
-        result = self.app.post("/api/auth/register/" ,data = test_data,
-                            content_type = "application/json")
+        result = self.register_user("test@mail.com", "test", "pass")
+        res = json.loads(result.data.decode())
+        self.assertEqual(res['error'],
+                         "Password should be more than 5 characters")
         self.assertEqual(result.status_code, 403)
 
     def test_register_with_invalid_url(self):
@@ -162,6 +184,30 @@ class UserTestCase(unittest.TestCase):
         result = json.loads(login_res.data.decode())
         self.assertEqual(result['error'], "email field cannot be blank")
         self.assertEqual(login_res.status_code, 400)
+
+    def test_login_blank_password(self):
+        """Test registered user can login with a blank email."""
+        self.register_user("user@mail.com", "testuser", "testpass")
+        login_res = self.login_user("user@mail", "")
+        result = json.loads(login_res.data.decode())
+        self.assertEqual(result['error'], "password field has to be filled")
+        self.assertEqual(login_res.status_code, 400)
+
+    def test_login_with_spaces_as_password(self):
+        """Test registered user can login with a blank email."""
+        self.register_user("user@mail.com", "testuser", "testpass")
+        login_res = self.login_user("user@mail", "      ")
+        result = json.loads(login_res.data.decode())
+        self.assertEqual(result['error'], "Your first value  must NOT !! be a space")
+        self.assertEqual(login_res.status_code, 403)
+
+    def test_login_with_spaces_as_email(self):
+        """Test registered user can login with a blank email."""
+        self.register_user("user@mail.com", "testuser", "testpass")
+        login_res = self.login_user("     ", "testpass")
+        result = json.loads(login_res.data.decode())
+        self.assertEqual(result['error'], "email field cannot contain spaces")
+        self.assertEqual(login_res.status_code, 403)
 
     def test_login_non_registered_user(self):
         """
