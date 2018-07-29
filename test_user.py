@@ -1,5 +1,6 @@
 import unittest
 import json
+from flask_bcrypt import Bcrypt
 from app import create_app
 
 
@@ -38,9 +39,8 @@ class UserTestCase(unittest.TestCase):
         """
         Test new user registration
         """
-        result = self.app.post("/api/auth/register/", data=self.user_data,
-                                    content_type="application/json")
-        self.assertEqual(result.status_code, 201)
+        res = self.register_user("test@gmail.com","testuser","testpass")
+        self.assertEqual(res.status_code, 201)
 
     def test_registration_without_username(self):
         """
@@ -68,6 +68,33 @@ class UserTestCase(unittest.TestCase):
                                     content_type="application/json")
 
         self.assertEqual(result.status_code, 400)
+
+    def test_registration_with_spaces_as_password(self):
+        """
+        Test that empty user password  cannot register
+        """
+        test_data = json.dumps(dict({
+            "username": "erick",
+            "email": "erick@gmail.com",
+            "password": "       "
+        }))
+        result = self.app.post("/api/auth/register/", data=test_data,
+                                    content_type="application/json")
+        results = json.loads(result.data.decode())
+        self.assertEqual(results['error'],
+                         "please avoid using spaces in your password")
+
+        self.assertEqual(result.status_code, 403)
+
+    def test_registration_with_spaces_as_username(self):
+        """
+        Test that empty user password  cannot register
+        """
+        result = self.register_user("test@mail.com", "     ", "password")
+        res = json.loads(result.data.decode())
+        self.assertEqual(res['error'],
+                         "Your first value  must NOT !! be a space")
+        self.assertEqual(result.status_code, 403)
 
     def test_registration_without_an_email(self):
         """
@@ -108,15 +135,12 @@ class UserTestCase(unittest.TestCase):
         self.assertEqual(result.status_code, 403)
 
     def test_registration_with_a_short_password(self):
-        """test that the email supplied by the user is valid
+        """test that the password is more than five characters
         """
-        test_data = json.dumps(dict({
-            "username":"erick",
-            "email": "erick@emailcom",
-            "password":"pass"
-            }))
-        result = self.app.post("/api/auth/register/" ,data = test_data,
-                            content_type = "application/json")
+        result = self.register_user("test@mail.com", "test", "pass")
+        res = json.loads(result.data.decode())
+        self.assertEqual(res['error'],
+                         "Password should be more than 5 characters")
         self.assertEqual(result.status_code, 403)
 
     def test_register_with_invalid_url(self):
@@ -140,16 +164,17 @@ class UserTestCase(unittest.TestCase):
         """Test registered user can login."""
         self.register_user("user@mail.com", "testuser", "testpass")
         login_res = self.login_user("user@mail.com", "testpass")
-        result = json.loads(login_res.data.decode())
-        self.assertEqual(result['message'], "Login successful")
+        results = json.loads(login_res.data.decode())
+        self.assertEqual(results['message'], "Login successful")
         self.assertEqual(login_res.status_code, 200)
+        self.assertTrue(results["access_token"])
 
     def test_login_incorrect_password(self):
         """Test registered user can login with an incorrect password."""
         self.register_user("user@mail.com", "testuser", "testpass")
         login_res = self.login_user("user@mail.com", "testpas")
         result = json.loads(login_res.data.decode())
-        self.assertEqual(result['error'], "Invalid password")
+        self.assertEqual(result['error'], "Invalid email or password")
         self.assertEqual(login_res.status_code, 401)
 
     def test_login_blank_email(self):
@@ -159,5 +184,51 @@ class UserTestCase(unittest.TestCase):
         result = json.loads(login_res.data.decode())
         self.assertEqual(result['error'], "email field cannot be blank")
         self.assertEqual(login_res.status_code, 400)
+
+    def test_login_blank_password(self):
+        """Test registered user can login with a blank email."""
+        self.register_user("user@mail.com", "testuser", "testpass")
+        login_res = self.login_user("user@mail", "")
+        result = json.loads(login_res.data.decode())
+        self.assertEqual(result['error'], "password field has to be filled")
+        self.assertEqual(login_res.status_code, 400)
+
+    def test_login_with_spaces_as_password(self):
+        """Test registered user can login with a blank email."""
+        self.register_user("user@mail.com", "testuser", "testpass")
+        login_res = self.login_user("user@mail", "      ")
+        result = json.loads(login_res.data.decode())
+        self.assertEqual(result['error'], "Your first value  must NOT !! be a space")
+        self.assertEqual(login_res.status_code, 403)
+
+    def test_login_with_spaces_as_email(self):
+        """Test registered user can login with a blank email."""
+        self.register_user("user@mail.com", "testuser", "testpass")
+        login_res = self.login_user("     ", "testpass")
+        result = json.loads(login_res.data.decode())
+        self.assertEqual(result['error'], "email field cannot contain spaces")
+        self.assertEqual(login_res.status_code, 403)
+
+    def test_login_non_registered_user(self):
+        """
+        Test that non registered users cannot log in
+        """
+        unregistered = json.dumps(dict({
+            "username": "tiaroot",
+            "email": "tiaroot@email.com",
+            "password": "invalidpassword"
+        }))
+
+        result = self.app.post("/api/auth/login/", data=unregistered,
+                                    content_type="application/json")
+        self.assertEqual(result.status_code, 401)
+
+    def test_login_with_a_nonexistent_url(self):
+        """
+        Test login with invalid url
+        """
+        response = self.app.post('/api/auth/logon/', data=self.user_data)
+        self.assertEqual(response.status_code, 404)
+
 if __name__ == "__main__":
     unittest.main()

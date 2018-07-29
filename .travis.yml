@@ -1,0 +1,24 @@
+language: python
+
+python:
+
+  - 3.4
+
+install:
+
+  - pip install -r requirements.txt
+
+  - pip install coveralls
+
+notifications: 
+  email: false
+
+script:
+
+  - pytest
+
+  - coverage run --source=app -m pytest  && coverage report
+
+after_success:
+
+  - coveralls
