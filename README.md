@@ -79,5 +79,3 @@ Use post man to test the endpoints this is the  [link](https://mydiar.herokuapp.
 | GET /api/v1/entries/<entry_id>  | Gets a single entry |
 | PUT /api/v1/entries/<entry_id> | Updates an entry |
 | DELETE /api/v1/entries/<entry_id> | Remove a diary entry |
-| POST /api/v1/entries/<entry_id>/contents | Add a contents to an entry |
-| GET /api/v1/entries/<entry_id>/contents | Get all contents of an entry |
